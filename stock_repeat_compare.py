@@ -21,6 +21,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 WORKDIR = Path("/home/ubuntu/shared_from_jack")
+YAHOO_DIR = WORKDIR / "output" / "yahoo"
+SCREENER_DIR = WORKDIR / "output" / "screener"
 YAHOO_GLOB = "yahoo_rank_intersection_*.csv"
 SCREENER_GLOB = "stock_screener_*.csv"
 DEFAULT_WINDOW = 5            # 觀察區間天數
@@ -34,7 +36,7 @@ def load_yahoo_csvs() -> list[tuple[str, set[str], dict[str, str]]]:
     按日期由新到舊排序。
     """
     out = []
-    for path in sorted(WORKDIR.glob(YAHOO_GLOB), reverse=True):
+    for path in sorted(YAHOO_DIR.glob(YAHOO_GLOB), reverse=True):
         date_str = path.stem.replace("yahoo_rank_intersection_", "")
         symbols: set[str] = set()
         name_map: dict[str, str] = {}
@@ -55,7 +57,7 @@ def load_yahoo_csvs() -> list[tuple[str, set[str], dict[str, str]]]:
 def load_screener_csvs() -> list[tuple[str, set[str], dict[str, str]]]:
     """同上，但讀 stock_screener_*.csv（欄位: 代號, 名稱）"""
     out = []
-    for path in sorted(WORKDIR.glob(SCREENER_GLOB), reverse=True):
+    for path in sorted(SCREENER_DIR.glob(SCREENER_GLOB), reverse=True):
         date_str = path.stem.replace("stock_screener_", "")
         symbols: set[str] = set()
         name_map: dict[str, str] = {}
@@ -279,7 +281,9 @@ def main():
     print()
 
     # 寫一份 CSV 保留歷史（向後相容：欄位不變；命中原因附加在備註尾端）
-    out_csv = WORKDIR / f"repeat_compare_{today}.csv"
+    # 2026-10-13 重構：CSV 統一寫入 output/repeat_compare/
+    out_csv = WORKDIR / "output" / "repeat_compare" / f"repeat_compare_{today}.csv"
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
     with open(out_csv, "w", newline="", encoding="utf-8-sig") as f:
         w = csv.writer(f)
         w.writerow(["區塊", "代號", "名稱", "備註"])

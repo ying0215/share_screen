@@ -172,7 +172,9 @@ def resolve_dates(today_override: str | None = None) -> tuple[str, str]:
                 return today, yesterday
 
         # 全部失敗：寫標記檔，溫和回報，不 raise
-        MARKER = Path(__file__).resolve().parent / f"TWSE_FAILED_{today}.marker"
+        # 2026-10-13 重構：TWSE_FAILED marker 也進 output/screener/
+        MARKER = WORKDIR / "output" / "screener" / f"TWSE_FAILED_{today}.marker"
+        MARKER.parent.mkdir(parents=True, exist_ok=True)
         MARKER.write_text(f"last_try={datetime.now().isoformat()}\nattempts={_RETRY_ATTEMPTS}\ninterval={_RETRY_INTERVAL}\n")
         log.error("✗ %s 已過 15:30，T86 連續 %s 次抓取仍失敗。已寫入標記檔：%s",
                   today, _RETRY_ATTEMPTS, MARKER)
@@ -237,7 +239,9 @@ def run_once(today_override: str | None = None) -> tuple[Path, list]:
     # TWSE 完全失敗：寫識別檔，溫和結束
     if today is None or yesterday is None:
         today_str = datetime.now().strftime("%Y%m%d")
-        csv_path = Path(__file__).resolve().parent / f"stock_screener_{today_str}_TWSE_FAILED.csv"
+        # 2026-10-13 重構：失敗識別檔統一進 output/screener/
+        csv_path = WORKDIR / "output" / "screener" / f"stock_screener_{today_str}_TWSE_FAILED.csv"
+        csv_path.parent.mkdir(parents=True, exist_ok=True)
         csv_path.write_text("代號,名稱,成交量相對變化,法人比\n", encoding="utf-8")
         log.warning("TWSE 失敗，寫入識別檔：%s", csv_path)
         return csv_path, []
@@ -304,7 +308,9 @@ def run_once(today_override: str | None = None) -> tuple[Path, list]:
 
     # 1. 寫 CSV（保留歷史，Shell 也會讀檔確認）
     import csv as csv_mod
-    csv_path = Path(__file__).resolve().parent / f"stock_screener_{today}.csv"
+    # 2026-10-13 重構：CSV 統一寫入 output/screener/
+    csv_path = WORKDIR / "output" / "screener" / f"stock_screener_{today}.csv"
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         w = csv_mod.writer(f)
         w.writerow(["代號", "名稱", "成交量相對變化", "法人比"])
@@ -326,7 +332,9 @@ def find_fallback_csv() -> Path | None:
       4. 取「最新的」一個
     """
     candidates: list[tuple[str, Path]] = []
-    for path in WORKDIR.glob("stock_screener_*.csv"):
+    # 2026-10-13 重構：fallback 也改讀 output/screener/
+    screener_dir = WORKDIR / "output" / "screener"
+    for path in screener_dir.glob("stock_screener_*.csv"):
         # 排除 _TWSE_FAILED 標記檔
         if "_TWSE_FAILED" in path.stem:
             continue

@@ -1,6 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import csv
+from datetime import datetime
+from pathlib import Path
 
 def get_yahoo_rank_stocks(url):
     """
@@ -76,8 +79,11 @@ def main():
     else:
         # 準備儲存成 CSV 的檔案名稱 (加上今天的日期)
         today_str = datetime.now().strftime("%Y%m%d")
-        csv_filename = f"yahoo_rank_intersection_{today_str}.csv"
-        
+        # 2026-10-13 重構：CSV 統一寫入 output/yahoo/ 子目錄
+        output_dir = Path(__file__).resolve().parent / "output" / "yahoo"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        csv_filename = output_dir / f"yahoo_rank_intersection_{today_str}.csv"
+
         # 寫入 CSV 檔案
         with open(csv_filename, mode="w", newline="", encoding="utf-8-sig") as file:
             writer = csv.writer(file)

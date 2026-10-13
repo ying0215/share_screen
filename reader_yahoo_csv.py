@@ -45,7 +45,8 @@ def find_default_csv() -> Path:
     workdir = os.environ.get("WORKDIR")
     if not workdir:
         err_and_exit(2, "找不到今日 CSV: WORKDIR 環境變數未設定，且沒指定 --csv")
-    return Path(workdir) / filename
+    # 2026-10-13 重構：Yahoo CSV 統一進 output/yahoo/
+    return Path(workdir) / "output" / "yahoo" / filename
 
 
 def err_and_exit(code: int, msg: str) -> None:

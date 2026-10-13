@@ -22,6 +22,9 @@ from collections import defaultdict
 from pathlib import Path
 
 WORKDIR = Path("/home/ubuntu/shared_from_jack")
+YAHOO_DIR = WORKDIR / "output" / "yahoo"
+SCREENER_DIR = WORKDIR / "output" / "screener"
+INDUSTRY_DIR = WORKDIR / "output" / "industry"
 YAHOO_GLOB = "yahoo_rank_intersection_*.csv"
 SCREENER_GLOB = "stock_screener_*.csv"
 INDUSTRY_CACHE = "stock_industry_cache.csv"
@@ -49,7 +52,7 @@ def load_industry_lookup() -> dict[str, tuple[str, str]]:
 def load_yahoo_daily() -> dict[str, list[str]]:
     """{日期(YYYYMMDD): [代號...]}"""
     daily = {}
-    for path in sorted(WORKDIR.glob(YAHOO_GLOB)):
+    for path in sorted(YAHOO_DIR.glob(YAHOO_GLOB)):
         date = path.stem.replace("yahoo_rank_intersection_", "")
         codes = []
         with open(path, encoding="utf-8-sig", newline="") as f:
@@ -65,7 +68,7 @@ def load_yahoo_daily() -> dict[str, list[str]]:
 def load_screener_daily() -> dict[str, list[str]]:
     """{日期(YYYYMMDD): [代號...]}"""
     daily = {}
-    for path in sorted(WORKDIR.glob(SCREENER_GLOB)):
+    for path in sorted(SCREENER_DIR.glob(SCREENER_GLOB)):
         date = path.stem.replace("stock_screener_", "")
         codes = []
         with open(path, encoding="utf-8") as f:
@@ -302,7 +305,9 @@ def analyze_source(source_name: str, daily_counts: dict[str, dict[str, int]], n_
     if discord_only:
         return  # pipeline 模式不需要寫 CSV
 
-    out_csv = WORKDIR / f"daily_industry_{source_name}.csv"
+    # 2026-10-13 重構：CSV 統一寫入 output/industry/
+    out_csv = INDUSTRY_DIR / f"daily_industry_{source_name}.csv"
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
     with open(out_csv, "w", newline="", encoding="utf-8-sig") as f:
         w = csv.writer(f)
         w.writerow(["日期", "產業", "當日次數", "MA5", "MA20"])

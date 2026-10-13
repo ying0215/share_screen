@@ -15,12 +15,28 @@ __pycache__/
 .debug/
 
 # === Pipeline CSV 產出 (每天重產,不入版) ===
-stock_screener_*.csv
-repeat_compare_*.csv
-yahoo_rank_intersection_*.csv
-daily_industry_merged_合併.csv
-daily_industry_screener_*.csv
-daily_industry_yahoo_*.csv
+# 2026-10-13 重構：統一寫入 output/<step>/，.gitignore 改為排除子目錄內的每日產出
+output/yahoo/yahoo_rank_intersection_*.csv
+output/yahoo/*.csv
+!output/yahoo/.gitkeep
+output/screener/stock_screener_*.csv
+output/screener/*.csv
+!output/screener/.gitkeep
+output/repeat_compare/repeat_compare_*.csv
+output/repeat_compare/*.csv
+!output/repeat_compare/.gitkeep
+output/industry/daily_industry_*.csv
+output/industry/*.csv
+!output/industry/.gitkeep
+
+# === 根目錄的歷史 CSV（2026-10-13 前產出）已 MV 到 output/<step>/，本機不該再產生 ===
+# 但若意外有殘留，仍不進版
+/yahoo_rank_intersection_*.csv
+/stock_screener_*.csv
+/repeat_compare_*.csv
+/daily_industry_*.csv
+/TWSE_FAILED_*.marker
+/*_TWSE_FAILED.csv
 
 # === Pipeline 依賴的 cache(在用,但不入版,clone 後自己跑 stock_industry.py 產) ===
 stock_industry_cache.csv
@@ -41,4 +57,3 @@ _patch_token.py
 # === 不在 cron 流程中的舊腳本 ===
 stock_screener.py
 stock_industry.py
-run_yahoo_rank.sh
