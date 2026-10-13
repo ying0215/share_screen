@@ -39,8 +39,6 @@ def get_yahoo_rank_stocks(url):
             
     return stocks
 
-import csv
-from datetime import datetime
 
 def main():
     url_volume = "https://tw.stock.yahoo.com/rank/volume/"
