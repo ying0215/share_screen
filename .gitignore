@@ -1,0 +1,44 @@
+# === Secrets (絕對不進 git) ===
+*.token
+*_token
+*.secret
+*.key
+secrets/
+
+# === Python cache ===
+__pycache__/
+*.pyc
+*.pyo
+
+# === 暫存 / debug log ===
+*.log
+.debug/
+
+# === Pipeline CSV 產出 (每天重產,不入版) ===
+stock_screener_*.csv
+repeat_compare_*.csv
+yahoo_rank_intersection_*.csv
+daily_industry_merged_合併.csv
+daily_industry_screener_*.csv
+daily_industry_yahoo_*.csv
+
+# === Pipeline 依賴的 cache(在用,但不入版,clone 後自己跑 stock_industry.py 產) ===
+stock_industry_cache.csv
+# ↑ 排除說明:daily_industry_analyzer.py 會讀這個 cache(全市場產業別快照)。
+#   第一次使用請跑 stock_industry.py(或在裝置上重產)。但 stock_industry.py
+#   目前不在 pipeline 流程,需要手動觸發 → clone 後若 cache 缺失,daily_industry
+#   的產業分類會退化(全部歸 "其他")。
+
+# === TWSE 失敗 marker ===
+TWSE_FAILED_*.marker
+*_TWSE_FAILED.csv
+
+# === 測試 / 工具腳本(不入版,保留在本機) ===
+test_50.py
+test_screener.py
+_patch_token.py
+
+# === 不在 cron 流程中的舊腳本 ===
+stock_screener.py
+stock_industry.py
+run_yahoo_rank.sh
