@@ -20,6 +20,44 @@
 - `uv`(讓 `scraper_yahoo_rank.py` 走 `requests` + `beautifulsoup4`)
 - FinMind API token(放在 `/home/ubuntu/.hermes/secrets/finmind_token`,**絕不進 git**)
 
+## 對應的本地資料夾
+
+```
+/home/ubuntu/shared_from_jack
+```
+
+就是 cron job `f29b8b92ad1e` 設定的 `workdir`,pipeline 一直跑在這裡。本地已經 `git init` + commit `c4238a1`,但**目前沒設 remote**(避免 token 寫入任何檔案)。所有修改在這個資料夾做完 → commit → 推上去。
+
+## 本地修改後的同步 SOP
+
+```bash
+cd /home/ubuntu/shared_from_jack
+
+# 1. 看改了什麼
+git status
+
+# 2. 確認沒意外檔案混入(secrets / CSV 產出 / 舊腳本都該被 .gitignore 擋掉)
+git check-ignore -v 新檔名    # 確認有被擋
+
+# 3. Stage + commit
+git add .
+git commit -m "描述這次改了什麼"
+
+# 4. 推上去(用一次性 URL,token 不留任何地方)
+#    傑克去 https://github.com/settings/personal-access-tokens 拿新 token 貼上:
+git push https://x-access-token:你的github_pat@github.com/ying0215/share_screen.git main
+```
+
+**為什麼不 `git remote add origin` + `git push -u origin main`**:
+- 設 origin 就要把 token 存進 `.git/config`(`git remote set-url ...` 帶 token),違反「token 不進任何檔案」原則
+- 之後要 push 還是會問密碼(token 不存在 config 會跳輸入框)
+- 一次性 URL 推完就丟,本地零痕跡
+
+**之後傑克的工作流**:
+- **只改本地** → 推上去用一次性 URL
+- **clone 回別台電腦跑** → 看「Clone 後設定」那段(產 token + 產 cache)
+- **跨裝置同步** → 兩邊都用一次性 URL push/pull
+
 ## Clone 後設定
 
 ```bash
